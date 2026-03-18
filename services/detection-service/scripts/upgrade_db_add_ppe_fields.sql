@@ -1,0 +1,51 @@
+-- Script: upgrade_db_add_ppe_fields.sql
+-- Purpose: Add new columns required by the updated PPE detection service.
+-- Run this against the same Postgres database the app uses.
+
+ALTER TABLE IF EXISTS detections
+  ADD COLUMN IF NOT EXISTS video_id TEXT;
+
+ALTER TABLE IF EXISTS detections
+  ADD COLUMN IF NOT EXISTS video_time DOUBLE PRECISION;
+
+ALTER TABLE IF EXISTS detections
+  ADD COLUMN IF NOT EXISTS person BOOLEAN;
+
+ALTER TABLE IF EXISTS detections
+  ADD COLUMN IF NOT EXISTS helmet BOOLEAN;
+
+ALTER TABLE IF EXISTS detections
+  ADD COLUMN IF NOT EXISTS vest BOOLEAN;
+
+ALTER TABLE IF EXISTS detections
+  ADD COLUMN IF NOT EXISTS gloves BOOLEAN;
+
+ALTER TABLE IF EXISTS detections
+  ADD COLUMN IF NOT EXISTS goggles BOOLEAN;
+
+ALTER TABLE IF EXISTS detections
+  ADD COLUMN IF NOT EXISTS mask BOOLEAN;
+
+ALTER TABLE IF EXISTS detections
+  ADD COLUMN IF NOT EXISTS compliance BOOLEAN;
+
+ALTER TABLE IF EXISTS detections
+  ADD COLUMN IF NOT EXISTS bbox_x1 INTEGER;
+
+ALTER TABLE IF EXISTS detections
+  ADD COLUMN IF NOT EXISTS bbox_y1 INTEGER;
+
+ALTER TABLE IF EXISTS detections
+  ADD COLUMN IF NOT EXISTS bbox_x2 INTEGER;
+
+ALTER TABLE IF EXISTS detections
+  ADD COLUMN IF NOT EXISTS bbox_y2 INTEGER;
+
+ALTER TABLE IF EXISTS detections
+  ADD COLUMN IF NOT EXISTS image_path TEXT;
+
+ALTER TABLE IF EXISTS detections
+  ADD COLUMN IF NOT EXISTS required_items JSON;
+
+ALTER TABLE IF EXISTS detections
+  ADD COLUMN IF NOT EXISTS missing_items JSON;
