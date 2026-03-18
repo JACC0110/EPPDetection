@@ -1,0 +1,95 @@
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f5f7fb;
+  color: #1c1e21;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+h1 {
+  margin-top: 0;
+}
+
+.card {
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+input[type="url"],
+input[type="file"] {
+  display: block;
+  width: 100%;
+  padding: 0.6rem;
+  margin-top: 0.25rem;
+  border: 1px solid #d0d4da;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+fieldset {
+  border-radius: 10px;
+  border: 1px solid #d0d4da;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+fieldset legend {
+  padding: 0 0.5rem;
+  font-weight: 600;
+}
+
+button {
+  border: none;
+  background: #1d4ed8;
+  color: white;
+  padding: 0.85rem 1.25rem;
+  font-size: 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+button:hover {
+  background: #1e40af;
+}
+
+.violation {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  display: grid;
+  grid-template-columns: 1fr 160px;
+  gap: 1rem;
+  align-items: start;
+}
+
+.violation img {
+  width: 160px;
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid #d1d5db;
+}
+
+.violation dt {
+  font-weight: 700;
+}
+
+.violation dd {
+  margin: 0 0 0.75rem 0;
+}

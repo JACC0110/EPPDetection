@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PPE Detection - Video Analyzer</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>PPE Video Analyzer</h1>
+
+    <section class="card">
+      <h2>Upload or use a video URL</h2>
+      <form id="analyzeForm">
+        <label>
+          Video file
+          <input type="file" name="file" id="videoFile" accept="video/*" />
+        </label>
+        <label>
+          OR Video URL
+          <input type="url" name="video_url" id="videoUrl" placeholder="https://..." />
+        </label>
+
+        <fieldset>
+          <legend>Select PPE items to evaluate</legend>
+          <label><input type="checkbox" name="ppe" value="helmet" checked /> Helmet</label>
+          <label><input type="checkbox" name="ppe" value="vest" checked /> Vest</label>
+          <label><input type="checkbox" name="ppe" value="gloves" checked /> Gloves</label>
+          <label><input type="checkbox" name="ppe" value="goggles" checked /> Goggles</label>
+          <label><input type="checkbox" name="ppe" value="mask" checked /> Mask</label>
+        </fieldset>
+
+        <button type="submit">Analyze Video</button>
+      </form>
+    </section>
+
+    <section class="card" id="results" hidden>
+      <h2>Violations</h2>
+      <div id="summary"></div>
+      <div id="violations"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
