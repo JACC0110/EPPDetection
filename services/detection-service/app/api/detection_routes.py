@@ -37,18 +37,34 @@ async def detect_ppe(
 
     result = service.detect(image, required_items=items_list)
 
-    # attach any incoming metadata so it will be saved
+    # attach any incoming metadata for persistence
     if result is not None:
         if video_id is not None:
             result["video_id"] = video_id
         if video_time is not None:
             result["video_time"] = video_time
         if items_list is not None:
-            result["required_items"] = items_list
+            result["requeridos"] = items_list
 
-    # only persist records when there is a violation (compliance is False)
-    if result and not result.get("compliance"):
+    # only persist records when there is a violation (cumplimiento == False)
+    if result and not result.get("cumplimiento"):
         repo = DetectionRepository(db)
-        repo.save_detection(result)
+
+        # normalize Spanish field names para DB
+        db_data = {
+            "persona": result.get("persona"),
+            "casco": result.get("casco"),
+            "chaleco": result.get("chaleco"),
+            "guantes": result.get("guantes"),
+            "gafas": result.get("gafas"),
+            "mascarilla": result.get("mascarilla"),
+            "cumplimiento": result.get("cumplimiento"),
+            "ruta_imagen": result.get("image_path"),
+            "requeridos": result.get("requeridos") or result.get("required_items"),
+            "faltantes": result.get("faltantes") or result.get("missing_items"),
+            "video_time": result.get("video_time"),
+        }
+
+        repo.save_detection(db_data)
 
     return result

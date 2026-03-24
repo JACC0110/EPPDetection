@@ -17,7 +17,7 @@ form.addEventListener("submit", async (event) => {
   } else if (urlInput.value.trim()) {
     formData.append("video_url", urlInput.value.trim());
   } else {
-    alert("Please provide a video file or a video URL.");
+    alert("Por favor proporciona un archivo de video o una URL.");
     return;
   }
 
@@ -45,12 +45,12 @@ form.addEventListener("submit", async (event) => {
 
     const data = await response.json();
 
-    summaryEl.innerHTML = `<p>Video ID: <code>${data.video_id}</code></p>
-      <p>Frames analizados: ${data.frames_analyzed}</p>
-      <p>Violations: ${data.violations.length}</p>`;
+    summaryEl.innerHTML = `<p><strong>ID del Video:</strong> <code>${data.video_id}</code></p>
+      <p><strong>Frames analizados:</strong> ${data.frames_analyzed}</p>
+      <p><strong>Incumplimientos encontrados:</strong> ${data.violations.length}</p>`;
 
     if (data.violations.length === 0) {
-      violationsEl.innerHTML = "<p>No violations detected.</p>";
+      violationsEl.innerHTML = "<p style='color: #22c55e;'>✓ No se detectaron incumplimientos.</p>";
       return;
     }
 
@@ -61,21 +61,25 @@ form.addEventListener("submit", async (event) => {
       const info = document.createElement("div");
       info.innerHTML = `
         <dl>
-          <dt>Video time</dt><dd>${violation.video_time?.toFixed(2)}s</dd>
-          <dt>Missing items</dt><dd>${violation.missing_items?.join(", ") || "-"}</dd>
-          <dt>Image</dt><dd>${violation.image_path || "-"}</dd>
+          <dt>Tiempo (s)</dt><dd>${violation.video_time?.toFixed(2) || "-"}</dd>
+          <dt>Cumplidos</dt><dd>${violation.cumplidos?.join(", ") || "-"}</dd>
+          <dt>Faltantes</dt><dd>${violation.faltantes?.join(", ") || "-"}</dd>
         </dl>
       `;
 
+      const imgContainer = document.createElement("div");
+      imgContainer.className = "violation-image-container";
+
       const img = document.createElement("img");
-      img.src = violation.image_path || "";
-      img.alt = `Violation @ ${violation.video_time}s`;
+      img.src = violation.image_url || "";
+      img.alt = `Violación @ ${violation.video_time}s`;
       img.loading = "lazy";
 
-      card.append(info, img);
+      imgContainer.appendChild(img);
+      card.append(info, imgContainer);
       violationsEl.appendChild(card);
     }
   } catch (err) {
-    summaryEl.innerHTML = `<p style="color: #b91c1c;">Error: ${err.message}</p>`;
+    summaryEl.innerHTML = `<p style="color: #b91c1c;">❌ Error: ${err.message}</p>`;
   }
 });

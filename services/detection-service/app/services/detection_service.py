@@ -14,14 +14,13 @@ class DetectionService:
         self.violation_folder = "storage/violations"
         os.makedirs(self.violation_folder, exist_ok=True)
 
-        # mapeo de nombres genéricos a etiquetas del modelo
+        # mapeo de nombres en español a etiquetas del modelo
         self.label_map = {
-            "helmet": "hardhat",
-            "vest": "safety vest",
-            "boots": "boots",
-            "gloves": "gloves",
-            "goggles": "safety glasses",
-            "mask": "face mask",
+            "casco": "hardhat",
+            "chaleco": "safety vest",
+            "guantes": "gloves",
+            "gafas": "safety glasses",
+            "mascarilla": "face mask",
         }
 
     def detect(
@@ -37,14 +36,15 @@ class DetectionService:
         helmet, vest, gloves, goggles, mask.
         """
 
+        original_image = image.copy()
         results = self.model(image)
 
         found_labels: set[str] = set()
         person = False
 
-        # collect bounding boxes so we can highlight offenders
+        # collect bounding boxes for decision, but we will not use them for display if full images are required
         person_boxes = []  # list of [x1,y1,x2,y2]
-        other_boxes = []  # boxes of PPE items (fallback)
+        other_boxes = []  # boxes of PPE items
 
         for r in results:
             if r.boxes is None:
@@ -58,66 +58,58 @@ class DetectionService:
                 if label == "person":
                     person = True
                     person_boxes.append(coords)
-                else:
+                elif label in self.label_map.values():
                     found_labels.add(label)
                     other_boxes.append(coords)
 
-        # algunos modelos no detectan persona pero sí PPE
-        if not person and ("hardhat" in found_labels or "safety vest" in found_labels):
+        # Persona presente si hay detección de persona o de al menos un EPP esperado
+        if not person and found_labels:
             person = True
 
-        # if we didn't detect a person box, fallback to any PPE box so we can draw a bounding box
-        if not person_boxes and other_boxes:
-            person_boxes = [other_boxes[0]]
+        # When drawing the violation box, try to cover the whole person.
+        # Prefer a detected person box; if not found, use all detected PPE boxes combined.
+        all_boxes = person_boxes + other_boxes
+        if all_boxes:
+            xs = [b[0] for b in all_boxes] + [b[2] for b in all_boxes]
+            ys = [b[1] for b in all_boxes] + [b[3] for b in all_boxes]
+            person_boxes = [[min(xs), min(ys), max(xs), max(ys)]]
 
         # reportar todos los items de PPE que el modelo conoce (para que el frontend pueda decidir)
-        output: dict = {"person": person}
+        output: dict = {"persona": person, "found_labels": sorted(list(found_labels))}
 
-        ppe_results = {
+        ppe_status = {
             item: (self.label_map[item] in found_labels)
             for item in self.label_map
         }
-        output.update(ppe_results)
+        output.update(ppe_status)
 
-        # determinar qué items se usan para calcular compliance
-        default_required = ["helmet", "vest", "gloves", "goggles", "mask"]
+        # determinar qué items se usan para calcular cumplimiento
+        default_required = ["casco", "chaleco", "guantes", "gafas", "mascarilla"]
         required_items_list = required_items if required_items is not None else default_required
 
-        missing = []
-        for item in required_items_list:
-            if not output.get(item, False):
-                missing.append(item)
+        completed = [item for item, status in ppe_status.items() if status and item in required_items_list]
+        missing = [item for item in required_items_list if not ppe_status.get(item, False)]
 
-        output["required_items"] = required_items_list
-        output["missing_items"] = missing
+        output["requeridos"] = required_items_list
+        output["cumplidos"] = completed
+        output["faltantes"] = missing
 
-        # consider frames with no person as compliant (no violation to store)
-        compliance = True if not person else len(missing) == 0
-        output["compliance"] = compliance
+        # considerar frames sin persona como cumplimiento (no guardar violación)
+        cumplimiento = True if not person else len(missing) == 0
+        output["cumplimiento"] = cumplimiento
 
         image_path = None
-        bounding_box = None
 
-        if not output["compliance"]:
-            # Dibujar bounding box en la imagen para llevar registro visual de la violación
-            if person_boxes:
-                x1, y1, x2, y2 = [int(c) for c in person_boxes[0]]
-                h, w = image.shape[:2]
-                x1, y1 = max(0, x1), max(0, y1)
-                x2, y2 = min(w, x2), min(h, y2)
-                cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 2)
-                bounding_box = [x1, y1, x2, y2]
-
+        if not output["cumplimiento"]:
+            # Guardar imagen original completa del frame (sin recorte)
             filename = f"{uuid.uuid4()}.jpg"
             saved_path = os.path.join(self.violation_folder, filename)
-            cv2.imwrite(saved_path, image)
+            cv2.imwrite(saved_path, original_image)
 
-            # Return a URL that can be fetched from the frontend.
-            # Assumes detection-service runs on localhost:8000.
             image_path = f"http://127.0.0.1:8000/storage/violations/{filename}"
 
+        output["image_url"] = image_path
         output["image_path"] = image_path
-        output["bounding_box"] = bounding_box
         output["video_id"] = video_id
         output["video_time"] = video_time
 

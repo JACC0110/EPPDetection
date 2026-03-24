@@ -9,25 +9,18 @@ class DetectionRepository:
 
     def save_detection(self, data):
 
-        # allow new keys to be optional
-        bbox = data.get("bounding_box") or []
         detection = Detection(
-            video_id=data.get("video_id"),
-            video_time=float(data.get("video_time")) if data.get("video_time") is not None else None,
-            person=data.get("person"),
-            helmet=data.get("helmet"),
-            vest=data.get("vest"),
-            gloves=data.get("gloves"),
-            goggles=data.get("goggles"),
-            mask=data.get("mask"),
-            compliance=data.get("compliance"),
-            bbox_x1=int(bbox[0]) if len(bbox) > 0 else None,
-            bbox_y1=int(bbox[1]) if len(bbox) > 1 else None,
-            bbox_x2=int(bbox[2]) if len(bbox) > 2 else None,
-            bbox_y2=int(bbox[3]) if len(bbox) > 3 else None,
-            image_path=data.get("image_path"),
-            required_items=list(data.get("required_items")) if data.get("required_items") else None,
-            missing_items=list(data.get("missing_items")) if data.get("missing_items") else None,
+            persona=data.get("persona"),
+            casco=data.get("casco"),
+            chaleco=data.get("chaleco"),
+            guantes=data.get("guantes"),
+            gafas=data.get("gafas"),
+            mascarilla=data.get("mascarilla"),
+            cumplimiento=data.get("cumplimiento"),
+            ruta_imagen=data.get("ruta_imagen"),
+            requeridos=data.get("requeridos") if data.get("requeridos") else None,
+            faltantes=data.get("faltantes") if data.get("faltantes") else None,
+            video_time=data.get("video_time"),
         )
 
         self.db.add(detection)

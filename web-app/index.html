@@ -1,42 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PPE Detection - Video Analyzer</title>
+  <title>Analizador de Video - Detección de EPP</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <main class="container">
-    <h1>PPE Video Analyzer</h1>
+    <h1>Analizador de Video - Detección de EPP</h1>
 
     <section class="card">
-      <h2>Upload or use a video URL</h2>
+      <h2>Sube un video o usa una URL</h2>
       <form id="analyzeForm">
         <label>
-          Video file
+          Archivo de video
           <input type="file" name="file" id="videoFile" accept="video/*" />
         </label>
         <label>
-          OR Video URL
+          O URL de video
           <input type="url" name="video_url" id="videoUrl" placeholder="https://..." />
         </label>
 
         <fieldset>
-          <legend>Select PPE items to evaluate</legend>
-          <label><input type="checkbox" name="ppe" value="helmet" checked /> Helmet</label>
-          <label><input type="checkbox" name="ppe" value="vest" checked /> Vest</label>
-          <label><input type="checkbox" name="ppe" value="gloves" checked /> Gloves</label>
-          <label><input type="checkbox" name="ppe" value="goggles" checked /> Goggles</label>
-          <label><input type="checkbox" name="ppe" value="mask" checked /> Mask</label>
+          <legend>Selecciona los elementos de EPP a evaluar</legend>
+          <label><input type="checkbox" name="ppe" value="casco" checked /> Casco</label>
+          <label><input type="checkbox" name="ppe" value="chaleco" checked /> Chaleco</label>
+          <label><input type="checkbox" name="ppe" value="guantes" checked /> Guantes</label>
+          <label><input type="checkbox" name="ppe" value="gafas" checked /> Gafas</label>
+          <label><input type="checkbox" name="ppe" value="mascarilla" checked /> Mascarilla</label>
         </fieldset>
 
-        <button type="submit">Analyze Video</button>
+        <button type="submit">Analizar Video</button>
       </form>
     </section>
 
     <section class="card" id="results" hidden>
-      <h2>Violations</h2>
+      <h2>Incumplimientos Detectados</h2>
       <div id="summary"></div>
       <div id="violations"></div>
     </section>

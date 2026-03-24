@@ -73,17 +73,30 @@ button:hover {
   padding: 1rem;
   margin-bottom: 1rem;
   display: grid;
-  grid-template-columns: 1fr 160px;
+  grid-template-columns: 1fr 280px;
   gap: 1rem;
   align-items: start;
 }
 
-.violation img {
-  width: 160px;
-  height: auto;
-  border-radius: 8px;
-  object-fit: cover;
+@media (max-width: 768px) {
+  .violation {
+    grid-template-columns: 1fr;
+  }
+}
+
+.violation-image-container {
   border: 1px solid #d1d5db;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.violation img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  border: none;
 }
 
 .violation dt {

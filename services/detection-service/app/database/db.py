@@ -20,22 +20,17 @@ def ensure_schema():
     # Postgres supports ALTER TABLE ... ADD COLUMN IF NOT EXISTS.
     with engine.begin() as conn:
         for column, ddl in [
-            ("video_id", "TEXT"),
+            ("persona", "BOOLEAN"),
+            ("casco", "BOOLEAN"),
+            ("chaleco", "BOOLEAN"),
+            ("guantes", "BOOLEAN"),
+            ("gafas", "BOOLEAN"),
+            ("mascarilla", "BOOLEAN"),
+            ("cumplimiento", "BOOLEAN"),
+            ("ruta_imagen", "TEXT"),
+            ("requeridos", "JSON"),
+            ("faltantes", "JSON"),
             ("video_time", "DOUBLE PRECISION"),
-            ("person", "BOOLEAN"),
-            ("helmet", "BOOLEAN"),
-            ("vest", "BOOLEAN"),
-            ("gloves", "BOOLEAN"),
-            ("goggles", "BOOLEAN"),
-            ("mask", "BOOLEAN"),
-            ("compliance", "BOOLEAN"),
-            ("bbox_x1", "INTEGER"),
-            ("bbox_y1", "INTEGER"),
-            ("bbox_x2", "INTEGER"),
-            ("bbox_y2", "INTEGER"),
-            ("image_path", "TEXT"),
-            ("required_items", "JSON"),
-            ("missing_items", "JSON"),
         ]:
             conn.execute(
                 text(

@@ -14,6 +14,8 @@ class VideoProcessor:
     def process_video(self, video_path, video_id: str | None = None, required_items: list[str] | None = None):
 
         cap = cv2.VideoCapture(video_path)
+        if not cap.isOpened():
+            raise ValueError(f"Unable to open video file: {video_path}")
 
         fps = cap.get(cv2.CAP_PROP_FPS) or 0
 
@@ -73,13 +75,18 @@ class VideoProcessor:
             data["required_items"] = ",".join(required_items)
 
         try:
+            response = requests.post(self.detection_api, files=files, data=data, timeout=30)
 
-            response = requests.post(self.detection_api, files=files, data=data)
+            if response.status_code != 200:
+                print("error sending frame, status", response.status_code, "body", response.text)
+                return None
 
-            return response.json()
+            try:
+                return response.json()
+            except ValueError as e:
+                print("error parsing JSON from detection service:", e, "body:", response.text)
+                return None
 
         except Exception as e:
-
             print("error sending frame", e)
-
             return None
