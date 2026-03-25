@@ -74,6 +74,11 @@ form.addEventListener("submit", async (event) => {
       img.src = violation.image_url || "";
       img.alt = `Violación @ ${violation.video_time}s`;
       img.loading = "lazy";
+      img.className = "clickable-image";
+
+      img.addEventListener("click", () => {
+        img.classList.toggle("zoomed");
+      });
 
       imgContainer.appendChild(img);
       card.append(info, imgContainer);

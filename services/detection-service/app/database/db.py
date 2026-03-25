@@ -17,7 +17,6 @@ Base = declarative_base()
 def ensure_schema():
     """Ensure the database schema has the columns introduced by recent changes."""
 
-    # Postgres supports ALTER TABLE ... ADD COLUMN IF NOT EXISTS.
     with engine.begin() as conn:
         for column, ddl in [
             ("persona", "BOOLEAN"),

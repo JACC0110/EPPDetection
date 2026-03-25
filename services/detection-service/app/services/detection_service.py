@@ -19,8 +19,8 @@ class DetectionService:
             "casco": "hardhat",
             "chaleco": "safety vest",
             "guantes": "gloves",
-            "gafas": "safety glasses",
-            "mascarilla": "face mask",
+            "gafas": "goggles",
+            "mascarilla": "mask",
         }
 
     def detect(
@@ -41,10 +41,10 @@ class DetectionService:
 
         found_labels: set[str] = set()
         person = False
-
-        # collect bounding boxes for decision, but we will not use them for display if full images are required
-        person_boxes = []  # list of [x1,y1,x2,y2]
-        other_boxes = []  # boxes of PPE items
+        
+        # Diccionario para almacenar TODAS las detecciones con sus boxes
+        # Formato: {label: [(x1,y1,x2,y2), ...], ...}
+        all_detections = {}
 
         for r in results:
             if r.boxes is None:
@@ -53,26 +53,21 @@ class DetectionService:
             for box in r.boxes:
                 cls = int(box.cls.item())
                 label = self.model.names[cls].lower()
-
                 coords = box.xyxy[0].tolist()
+                
+                # Guardar todas las detecciones
+                if label not in all_detections:
+                    all_detections[label] = []
+                all_detections[label].append(coords)
+
                 if label == "person":
                     person = True
-                    person_boxes.append(coords)
                 elif label in self.label_map.values():
                     found_labels.add(label)
-                    other_boxes.append(coords)
 
         # Persona presente si hay detección de persona o de al menos un EPP esperado
         if not person and found_labels:
             person = True
-
-        # When drawing the violation box, try to cover the whole person.
-        # Prefer a detected person box; if not found, use all detected PPE boxes combined.
-        all_boxes = person_boxes + other_boxes
-        if all_boxes:
-            xs = [b[0] for b in all_boxes] + [b[2] for b in all_boxes]
-            ys = [b[1] for b in all_boxes] + [b[3] for b in all_boxes]
-            person_boxes = [[min(xs), min(ys), max(xs), max(ys)]]
 
         # reportar todos los items de PPE que el modelo conoce (para que el frontend pueda decidir)
         output: dict = {"persona": person, "found_labels": sorted(list(found_labels))}
@@ -101,10 +96,48 @@ class DetectionService:
         image_path = None
 
         if not output["cumplimiento"]:
-            # Guardar imagen original completa del frame (sin recorte)
+            # Anotar imagen con bounding boxes de items cumplidos (verde) y faltantes (rojo)
+            annotated_image = original_image.copy()
+            
+            # Para cada item requerido, dibujar bounding boxes
+            for item in required_items_list:
+                model_label = self.label_map[item]
+                
+                # Verde para items detectados (cumplidos)
+                if model_label in all_detections:
+                    for box in all_detections[model_label]:
+                        x1, y1, x2, y2 = int(box[0]), int(box[1]), int(box[2]), int(box[3])
+                        cv2.rectangle(annotated_image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                        cv2.putText(
+                            annotated_image,
+                            f"OK: {item}",
+                            (x1, y1 - 5),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            0.6,
+                            (0, 255, 0),
+                            2,
+                        )
+                
+                # Rojo para items no detectados (faltantes) - buscar "no-X"
+                no_label = f"no-{model_label}"
+                if no_label in all_detections:
+                    for box in all_detections[no_label]:
+                        x1, y1, x2, y2 = int(box[0]), int(box[1]), int(box[2]), int(box[3])
+                        cv2.rectangle(annotated_image, (x1, y1), (x2, y2), (0, 0, 255), 2)
+                        cv2.putText(
+                            annotated_image,
+                            f"FALTA: {item}",
+                            (x1, y1 - 5),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            0.6,
+                            (0, 0, 255),
+                            2,
+                        )
+            
+            # Guardar imagen anotada
             filename = f"{uuid.uuid4()}.jpg"
             saved_path = os.path.join(self.violation_folder, filename)
-            cv2.imwrite(saved_path, original_image)
+            cv2.imwrite(saved_path, annotated_image)
 
             image_path = f"http://127.0.0.1:8000/storage/violations/{filename}"
 

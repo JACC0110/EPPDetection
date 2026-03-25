@@ -88,7 +88,7 @@ button:hover {
   border: 1px solid #d1d5db;
   border-radius: 8px;
   width: 100%;
-  max-width: 300px;
+  max-width: 400px;
 }
 
 .violation img {
@@ -97,7 +97,21 @@ button:hover {
   display: block;
   object-fit: contain;
   border: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+
+.violation img.clickable-image {
+  cursor: zoom-in;
+}
+
+.violation img.zoomed {
+  transform: scale(1.2);
+  max-width: 800px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.35);
+  cursor: zoom-out;
+  z-index: 10;
+}
+
 
 .violation dt {
   font-weight: 700;

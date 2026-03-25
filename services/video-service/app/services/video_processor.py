@@ -7,7 +7,6 @@ import tempfile
 class VideoProcessor:
 
     def __init__(self):
-        # Allow overriding via environment variables for containerized deployment
         self.detection_api = os.getenv("DETECTION_API_URL", "http://127.0.0.1:8000/detect")
         self.frame_interval = float(os.getenv("FRAME_INTERVAL_SECONDS", "5"))  # segundos
 
@@ -19,7 +18,6 @@ class VideoProcessor:
 
         fps = cap.get(cv2.CAP_PROP_FPS) or 0
 
-        # fallback to 1 fps when video metadata is not available
         if fps <= 0:
             fps = 1.0
 
@@ -39,12 +37,10 @@ class VideoProcessor:
                 break
 
             if frame_count % frame_interval == 0:
-                # calculate current time in seconds
                 timestamp = frame_count / fps if fps > 0 else None
                 result = self.send_frame(frame, video_id=video_id, video_time=timestamp, required_items=required_items)
 
                 if result:
-                    # propagate metadata to the returned result as well
                     if video_id is not None:
                         result["video_id"] = video_id
                     if timestamp is not None:
